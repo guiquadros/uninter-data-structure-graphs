@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+
+# Others
+GraphDataStructureExample/.vs/
+GraphDataStructureExample/x64/
+GraphDataStructureExample/GraphDataStructureExample/x64/
