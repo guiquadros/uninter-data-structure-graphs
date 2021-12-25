@@ -18,10 +18,18 @@ struct graph
 	struct neighbor_node **adjacency_lists;
 };
 
+struct dfs_stack_node
+{
+	int vertex;
+	struct dfs_stack_node* next;
+} *top = NULL;
+
 struct graph* create_graph(int total_vertexes);
 void add_edge(struct graph* graph, int origin, int destiny);
 void show_graph_adjacency_lists(struct graph* graph);
 void search_and_display_vertexes_with_dfs(struct graph* graph, int v, int visited_vertexes[]);
+void push_dfs_stack(int vertex);
+void pop_dfs_stack();
 
 int main()
 {
@@ -67,6 +75,7 @@ int main()
 	//and display each vertex visited until it finishes the output of the whole graph
 	search_and_display_vertexes_with_dfs(test_graph, starting_vertex, visited_vertexes);
 
+	printf("\n\n");
 	system("pause");
 	return 0;
 }
@@ -119,13 +128,57 @@ void show_graph_adjacency_lists(struct graph* graph)
 }
 
 void search_and_display_vertexes_with_dfs(struct graph* graph, int v, int visited_vertexes[])
-{
+{	
+	// mark this vertex as visited
+	visited_vertexes[v] = 1;
+	printf("V%d\t", v);
+	push_dfs_stack(v); // push the visited vertex in the dfs_stack
+
+	// start looking into each element of the adjacency list of this vertex
 	struct neighbor_node *neighbor = graph->adjacency_lists[v];
 
 	while (neighbor != NULL)
 	{
-		// TODO
+		const int neighbor_vertex = neighbor->vertex;
+
+		// if the vertex of the neighbor was not visited yet we do a recursive call passing it as the target vertex (v)
+		if (visited_vertexes[neighbor_vertex] != 1)
+		{
+			search_and_display_vertexes_with_dfs(graph, neighbor_vertex, visited_vertexes);
+		}
 
 		neighbor = neighbor->next;
+	}
+
+	// pop the stack, the search is done for the current vertex on top
+	pop_dfs_stack();
+}
+
+void push_dfs_stack(int vertex)
+{
+	struct dfs_stack_node* new_dfs_stack_node = (struct dfs_stack_node*)malloc(sizeof(struct dfs_stack_node));
+	new_dfs_stack_node->vertex = vertex;
+
+	if (top == NULL)
+	{
+		// first element of the stack
+		top = new_dfs_stack_node;
+		top->next = NULL;
+		return;
+	}
+
+	// stack already filled, add to the top and make it point to the "old top"
+	new_dfs_stack_node->next = top;
+	top = new_dfs_stack_node;
+}
+
+void pop_dfs_stack()
+{
+	// check if stack is empty
+	if (top != NULL)
+	{
+		struct dfs_stack_node* element_to_pop = top;
+		top = top->next;
+		free(element_to_pop);
 	}
 }
